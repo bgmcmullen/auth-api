@@ -34,6 +34,7 @@ router.put('/:model/:id', handleUpdate);
 router.delete('/:model/:id', handleDelete);
 
 async function signup(req, res, next) {
+  
   try {
     let userRecord = await users.create(req.body);
     const output = {
