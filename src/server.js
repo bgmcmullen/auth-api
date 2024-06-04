@@ -5,11 +5,14 @@ const express = require('express');
 const notFoundHandler = require('./error-handlers/404.js');
 const errorHandler = require('./error-handlers/500.js');
 const logger = require('./middleware/logger.js');
+const cors = require('cors');
 
 const v1Routes = require('./routes/v1.js');
 const v2Routes = require('./routes/v2.js');
 
 const app = express();
+
+app.use(cors()); // Enable CORS for all routes
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
