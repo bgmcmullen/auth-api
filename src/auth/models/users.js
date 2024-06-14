@@ -6,7 +6,7 @@ const jwt = require('jsonwebtoken');
 const SECRET = process.env.SECRET || 'secretstring';
 
 const userModel = (sequelize, DataTypes) => {
-  const model = sequelize.define('users', {
+  const model = sequelize.define('Users', {
     username: { type: DataTypes.STRING, required: true, unique: true },
     password: { type: DataTypes.STRING, required: true },
     role: { type: DataTypes.ENUM('user', 'writer', 'editor', 'admin'), required: true, defaultValue: 'user'},
@@ -32,31 +32,35 @@ const userModel = (sequelize, DataTypes) => {
         return acl[this.role];
       }
     },
-      createdAt: {
-      type: DataTypes.DATE,
-      allowNull: false,
-      defaultValue: DataTypes.NOW,
-      field: 'createdat' // Specify the field name explicitly
-    },
-    updatedAt: {
-      type: DataTypes.DATE,
-      allowNull: false,
-      defaultValue: DataTypes.NOW,
-      field: 'updatedat' // Specify the field name explicitly
-    }
+    //   createdAt: {
+    //   type: DataTypes.DATE,
+    //   allowNull: false,
+    //   defaultValue: DataTypes.NOW,
+    //   field: 'createdat' // Specify the field name explicitly
+    // },
+    // updatedAt: {
+    //   type: DataTypes.DATE,
+    //   allowNull: false,
+    //   defaultValue: DataTypes.NOW,
+    //   field: 'updatedat' // Specify the field name explicitly
+    // }
   });
 
   model.beforeCreate(async (user) => {
+    console.log('user', user);
     let hashedPass = await bcrypt.hash(user.password, 10);
     user.password = hashedPass;
   });
 
   model.authenticateBasic = async function (username, password) {
-    const user = await this.findOne({ where: { username } });
-    const valid = await bcrypt.compare(password, user.password);
+    try {
+      const user = await this.findOne({ where: { username } });
+      const valid = await bcrypt.compare(password, user.password);
+      if (valid) { return user; }
+    } catch(e) {
+      console.error(e);
+    }
 
-    if (valid) { return user; }
-    throw new Error('Invalid User');
   };
 
   model.authenticateToken = async function (token) {
