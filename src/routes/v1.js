@@ -3,9 +3,12 @@
 const express = require('express');
 const dataModules = require('../models');
 
+const users = dataModules.users;
+
+
 const router = express.Router();
 
-const { users } = require('../auth/models');
+// const users = require('../auth/models/users.js');
 const basicAuth = require('../auth/middleware/basic.js')
 const bearerAuth = require('../auth/middleware/bearer.js')
 const permissions = require('../auth/middleware/acl.js')
@@ -23,8 +26,8 @@ router.param('model', (req, res, next) => {
 
 router.post('/signup', signup);
 router.post('/signin', basicAuth, signin);
-router.get('/users', bearerAuth, permissions('delete'), findUsers);
-router.get('/secret', bearerAuth, permissions('create'), secret);
+router.get('/users', findUsers);
+router.get('/secret', secret);
 
 
 router.get('/:model', handleGetAll);
@@ -33,8 +36,7 @@ router.post('/:model', handleCreate);
 router.put('/:model/:id', handleUpdate);
 router.delete('/:model/:id', handleDelete);
 
-async function signup(req, res, next) {
-  
+async function signup(req, res, next) {  
   try {
     let userRecord = await users.create(req.body);
     const output = {

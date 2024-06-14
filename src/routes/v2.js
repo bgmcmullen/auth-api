@@ -5,7 +5,7 @@ const dataModules = require('../models');
 
 const router = express.Router();
 
-const { users } = require('../auth/models');
+const users = dataModules.users;
 const basicAuth = require('../auth/middleware/basic.js')
 const bearerAuth = require('../auth/middleware/bearer.js')
 const permissions = require('../auth/middleware/acl.js')
@@ -30,8 +30,8 @@ router.get('/secret', bearerAuth, permissions('create'), secret);
 router.get('/:model', bearerAuth, handleGetAll);
 router.get('/:model/:id', bearerAuth, handleGetOne);
 router.post('/:model', bearerAuth, permissions('create'), handleCreate);
-router.put('/:model/:id',bearerAuth, permissions('update'),handleUpdate);
-router.delete('/:model/:id',bearerAuth, permissions('delete'),handleDelete);
+router.put('/:model/:id', bearerAuth, permissions('update'), handleUpdate);
+router.delete('/:model/:id', bearerAuth, permissions('delete'), handleDelete);
 
 async function signup(req, res, next) {
   try {
@@ -47,11 +47,15 @@ async function signup(req, res, next) {
 }
 
 async function signin(req, res, next) {
-  const user = {
-    user: req.user,
-    token: req.user.token
-  };
-  res.status(200).json(user);
+  try {
+    const user = {
+      user: req.user,
+      token: req.user.token
+    };
+    res.status(200).json(user);
+  } catch (e) {
+    next(e.message)
+  }
 }
 
 async function findUsers(req, res, next) {
